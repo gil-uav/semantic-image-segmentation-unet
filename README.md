@@ -18,7 +18,14 @@ Current network structure is [U-net](https://lmb.informatik.uni-freiburg.de/peop
 ## Installation
 
 ```console
-git clone https://github.com/gil-uav/semantic-image-segmentation.git
+git clone https://github.com/gil-uav/semantic-image-segmentation-unet.git
+```
+
+#### Virtualenv
+```console
+python -m virtualevn venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
 #### Conda
