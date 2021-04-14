@@ -312,7 +312,12 @@ class UNet(pl.LightningModule):
         """
         images, masks, masks_pred, loss = self.shared_step(batch)
 
+        if batch_idx % self.train_log == 0:
+            self.log_parameters()
+            self.log_images(images, masks, masks_pred, 5, "TRAIN")
+
         pred = torch.gt(torch.sigmoid(masks_pred), 0.5)
+        masks = masks.type(torch.cuda.ByteTensor)
         self.train_pres(pred, masks)
         self.train_rec(pred, masks)
         self.train_f1(pred, masks)
@@ -322,10 +327,6 @@ class UNet(pl.LightningModule):
         self.log("train_recall", self.train_rec)
         self.log("train_f1", self.train_f1)
 
-        if batch_idx % self.train_log == 0:
-            self.log_parameters()
-            self.log_images(images, masks, masks_pred, 5, "TRAIN")
-
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -334,7 +335,11 @@ class UNet(pl.LightningModule):
         """
         images, masks, masks_pred, loss = self.shared_step(batch)
 
+        if batch_idx % self.val_log == 0:
+            self.log_images(images, masks, masks_pred, 5, "VAL")
+
         pred = torch.gt(torch.sigmoid(masks_pred), 0.5)
+        masks = masks.type(torch.cuda.ByteTensor)
         self.val_pres(pred, masks)
         self.val_rec(pred, masks)
         self.val_f1(pred, masks)
@@ -343,9 +348,6 @@ class UNet(pl.LightningModule):
         self.log("val_precision", self.val_pres)
         self.log("val_recall", self.val_rec)
         self.log("val_f1", self.val_f1)
-
-        if batch_idx % self.val_log == 0:
-            self.log_images(images, masks, masks_pred, 5, "VAL")
 
         return {
             "val_loss": loss,
@@ -360,7 +362,11 @@ class UNet(pl.LightningModule):
         """
         images, masks, masks_pred, loss = self.shared_step(batch)
 
+        if batch_idx % self.test_log == 0:
+            self.log_images(images, masks, masks_pred, 5, "TEST")
+
         pred = torch.gt(torch.sigmoid(masks_pred), 0.5)
+        masks = masks.type(torch.cuda.ByteTensor)
         self.test_pres(pred, masks)
         self.test_rec(pred, masks)
         self.test_f1(pred, masks)
@@ -369,9 +375,6 @@ class UNet(pl.LightningModule):
         self.log("test_precision", self.test_pres)
         self.log("test_recall", self.test_rec)
         self.log("test_f1", self.test_f1)
-
-        if batch_idx % self.test_log == 0:
-            self.log_images(images, masks, masks_pred, 5, "TEST")
 
         return {
             "test_loss": loss,
@@ -394,7 +397,6 @@ class UNet(pl.LightningModule):
             )
         masks_pred = self(images)
         loss = self.loss_function(masks_pred, masks)
-        masks = masks.type(torch.cuda.ByteTensor)
 
         return images, masks, masks_pred, loss
 
