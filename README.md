@@ -1,10 +1,7 @@
-# Semantic Image Segmentation
+# Semantic Image Segmentation Unet
 **Members** : <a href="https://github.com/vegovs">Vegard Bergsvik Øvstegård</a>
 
 **Supervisors** : <a href="https://www.mn.uio.no/ifi/personer/vit/jimtoer/">Jim Tørresen</a>
-
-## Status
-![Python Package using Conda](https://github.com/gil-uav/semantic-image-segmentation/workflows/Python%20Package%20using%20Conda/badge.svg) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/41c8bd8d0049413a9432bdd78e4e3869)](https://www.codacy.com/gh/gil-uav/semantic-image-segmentation/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gil-uav/semantic-image-segmentation&amp;utm_campaign=Badge_Grade) [![DeepSource](https://deepsource.io/gh/gil-uav/semantic-image-segmentation.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/gil-uav/semantic-image-segmentation/?ref=repository-badge)
 
 ## Description
 
