@@ -68,6 +68,7 @@ BILINEAR=True
 # Hyperparameters
 EPOCHS=300 # Epochs
 BATCH_SIZE=4 # Batch size
+GROUP_NORM=0 # Group normalization size. If 0 run batch norm.
 LRN_RATE=0.001 # Learning rate
 VAL_PERC=15 # Validation percent
 TEST_PERC=15 # Testing percent
@@ -79,6 +80,7 @@ EARLY_STOP=10 # Early stopping patience(Epochs)
 
 # Other
 PROD=False # Turn on or off debugging APIs
+FAST_DEV_RUN=False # Do a fast test.
 DIR_DATA="data/" # Where dataset is stored
 DIR_ROOT_DIR="/shared/use/this/" # Where logs and checkpoint will be stored
 WORKERS=4 # Number of workers for data- and validation loading
@@ -91,6 +93,7 @@ is `workers = cores * (threads per core)`.
 
 ## Features
 ### ML:
+* Group normalization
 * Auto learning rate tuner
 * Distributed data parallel training
 * Early stopping

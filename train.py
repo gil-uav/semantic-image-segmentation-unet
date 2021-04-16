@@ -64,7 +64,7 @@ def main():
         monitor="val_loss",
         min_delta=0.00,
         mode="min",
-        patience=3 if not os.getenv("EARLY_STOP") else int(os.getenv("EARLY_STOP")),
+        patience=10 if not os.getenv("EARLY_STOP") else int(os.getenv("EARLY_STOP")),
         verbose=True,
     )
 
@@ -89,9 +89,11 @@ def main():
             args,
             gpus=-1,
             accelerator="ddp",
-            precision=16,
-            auto_lr_find=True,
             plugins=DDPPlugin(find_unused_parameters=False),
+            precision=16,
+            auto_lr_find="learning_rate"
+            if float(os.getenv("LRN_RATE")) == 0.0
+            else False,
             logger=logger,
             callbacks=[early_stop_callback, lr_monitor],
             accumulate_grad_batches=1.0
@@ -107,8 +109,10 @@ def main():
             default_root_dir=os.getcwd()
             if not os.getenv("DIR_ROOT_DIR")
             else os.getenv("DIR_ROOT_DIR"),
+            fast_dev_run=True if os.getenv("FAST_DEV_RUN") == "True" else False,
         )
-        trainer.tune(model)
+        if float(os.getenv("LRN_RATE")) == 0.0:
+            trainer.tune(model)
         trainer.fit(model)
         trainer.test(model)
     except KeyboardInterrupt:
