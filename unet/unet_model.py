@@ -65,15 +65,15 @@ class UNet(pl.LightningModule):
 
         # Model definition start
         self.in_conv = DoubleConvolution(n_channels, 64, group_norm)
-        self.down_conv_1 = Down(64, 128)
-        self.down_conv_2 = Down(128, 256)
-        self.down_conv_3 = Down(256, 512)
-        self.down_conv_4 = Down(512, 1024 // factor)
+        self.down_conv_1 = Down(64, 128, group_norm)
+        self.down_conv_2 = Down(128, 256, group_norm)
+        self.down_conv_3 = Down(256, 512, group_norm)
+        self.down_conv_4 = Down(512, 1024 // factor, group_norm)
 
-        self.up_conv_1 = Up(1024, 512 // factor, bilinear)
-        self.up_conv_2 = Up(512, 256 // factor, bilinear)
-        self.up_conv_3 = Up(256, 128 // factor, bilinear)
-        self.up_conv_4 = Up(128, 64, bilinear)
+        self.up_conv_1 = Up(1024, 512 // factor, group_norm, bilinear)
+        self.up_conv_2 = Up(512, 256 // factor, group_norm, bilinear)
+        self.up_conv_3 = Up(256, 128 // factor, group_norm, bilinear)
+        self.up_conv_4 = Up(128, 64, group_norm, bilinear)
         self.out_conv = OutConvolution(64, n_classes)
         # Model definition end
 
@@ -433,7 +433,7 @@ class UNet(pl.LightningModule):
             dest="group_norm",
             type=int,
             metavar="GN",
-            default=16 if not os.getenv("GROUP_NORM") else int(os.getenv("GROUP_NORM")),
+            default=0 if not os.getenv("GROUP_NORM") else int(os.getenv("GROUP_NORM")),
             help="Number of groups in group noramlization. If 0 run batch normalization.",
         )
         parser.add_argument(
