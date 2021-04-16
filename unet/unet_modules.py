@@ -8,7 +8,13 @@ class DoubleConvolution(nn.Module):
     Class used to initialize the conv 3x3, ReLu step.
     """
 
-    def __init__(self, in_channels: int, out_channels: int, mid_channels: int = None):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        mid_channels: int = None,
+        group_norm: int = 32,
+    ):
         """
 
         Parameters
@@ -19,16 +25,22 @@ class DoubleConvolution(nn.Module):
             Number of output channels
         mid_channels : int
             Number if mid-layer channels
+        group_norm : int
+            Number of group to use in group normalization. If 0 use batch norm.
         """
         super().__init__()
         if not mid_channels:
             mid_channels = out_channels
         self.double_conv = nn.Sequential(
             nn.Conv2d(in_channels, mid_channels, kernel_size=3, padding=1, bias=False),
-            nn.BatchNorm2d(mid_channels),
+            nn.GroupNorm(group_norm, mid_channels)
+            if group_norm > 0
+            else nn.BatchNorm2d(mid_channels),
             nn.ReLU(inplace=True),
             nn.Conv2d(mid_channels, out_channels, kernel_size=3, padding=1, bias=False),
-            nn.BatchNorm2d(out_channels),
+            nn.GroupNorm(group_norm, out_channels)
+            if group_norm > 0
+            else nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
         )
 

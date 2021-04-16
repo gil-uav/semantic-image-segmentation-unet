@@ -29,6 +29,7 @@ class UNet(pl.LightningModule):
         n_classes: int = 1,
         bilinear=True,
         learning_rate: float = 0.0001,
+        group_norm: int = 0,
         **kwargs,
     ):
         """
@@ -41,6 +42,8 @@ class UNet(pl.LightningModule):
             Number of classes to segment.
         bilinear : bool
             Bilinear interpolation in upsampling(default)
+        group_norm : int
+            Number of group to use in group normalization. If 0 use batch norm.
         """
         super().__init__()
         self.learning_rate = learning_rate
@@ -61,7 +64,7 @@ class UNet(pl.LightningModule):
         factor = 2 if bilinear else 1
 
         # Model definition start
-        self.in_conv = DoubleConvolution(n_channels, 64)
+        self.in_conv = DoubleConvolution(n_channels, 64, group_norm)
         self.down_conv_1 = Down(64, 128)
         self.down_conv_2 = Down(128, 256)
         self.down_conv_3 = Down(256, 512)
@@ -425,13 +428,22 @@ class UNet(pl.LightningModule):
             help="Number of classes to classify.",
         )
         parser.add_argument(
+            "-gn",
+            "--group-normalization",
+            dest="group_norm",
+            type=int,
+            metavar="GN",
+            default=16 if not os.getenv("GROUP_NORM") else int(os.getenv("GROUP_NORM")),
+            help="Number of groups in group noramlization. If 0 run batch normalization.",
+        )
+        parser.add_argument(
             "-lr",
             "--learning-rate",
             dest="lr",
             type=float,
             metavar="LR",
             default=0.0001 if not os.getenv("LRN_RATE") else os.getenv("LRN_RATE"),
-            help="Number of classes to classify.",
+            help="Learning rate.",
         )
         parser.add_argument(
             "-b",
