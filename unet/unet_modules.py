@@ -12,8 +12,8 @@ class DoubleConvolution(nn.Module):
         self,
         in_channels: int,
         out_channels: int,
+        group_norm: int,
         mid_channels: int = None,
-        group_norm: int = 32,
     ):
         """
 
@@ -23,10 +23,10 @@ class DoubleConvolution(nn.Module):
             Number of input channels
         out_channels : int
             Number of output channels
-        mid_channels : int
-            Number if mid-layer channels
         group_norm : int
             Number of group to use in group normalization. If 0 use batch norm.
+        mid_channels : int
+            Number if mid-layer channels
         """
         super().__init__()
         if not mid_channels:
@@ -61,7 +61,7 @@ class Down(nn.Module):
     Class used to initialize the max pool 2x2 step.
     """
 
-    def __init__(self, in_channels: int, out_channels: int):
+    def __init__(self, in_channels: int, out_channels: int, group_norm: int):
         """
 
         Parameters
@@ -70,10 +70,12 @@ class Down(nn.Module):
             Number of input channels
         out_channels : int
             Number of output channels
+        group_norm : int
+            Number of group to use in group normalization. If 0 use batch norm.
         """
         super().__init__()
         self.maxpool_conv = nn.Sequential(
-            nn.MaxPool2d(2), DoubleConvolution(in_channels, out_channels)
+            nn.MaxPool2d(2), DoubleConvolution(in_channels, out_channels, group_norm)
         )
 
     def forward(self, x):
@@ -93,28 +95,37 @@ class Up(nn.Module):
     Class used to initialize the up-conv 2x2 step.
     """
 
-    def __init__(self, in_channels: int, out_channels: int, bilinear: bool = True):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        group_norm: int,
+        bilinear: bool = True,
+    ):
         super().__init__()
         """
-
         Parameters
         ----------
         in_channels : int
             Number of input channels
         out_channels : int
             Number of output channels
+        group_norm : int
+            Number of group to use in group normalization. If 0 use batch norm.
         bilinear : bool
             Bilinear interpolation in upsampling(default)
         """
 
         if bilinear:
             self.up = nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True)
-            self.conv = DoubleConvolution(in_channels, out_channels, in_channels // 2)
+            self.conv = DoubleConvolution(
+                in_channels, out_channels, group_norm, in_channels // 2
+            )
         else:
             self.up = nn.ConvTranspose2d(
                 in_channels, in_channels // 2, kernel_size=2, stride=2
             )
-            self.conv = DoubleConvolution(in_channels, out_channels)
+            self.conv = DoubleConvolution(in_channels, out_channels, group_norm)
 
     def forward(self, x1, x2):
         """
