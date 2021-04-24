@@ -416,8 +416,10 @@ class MaskToClasses(torch.nn.Module):
             sample_mask = torch.from_numpy(np.array(sample_mask))
             for k in self.mapping:
                 sample_mask[sample_mask == k] = self.mapping[k]
+            sample_mask = torch.unsqueeze(sample_mask, 0)
             return {"image": sample_image, "mask": sample_mask}
         sample_mask = transforms.ToTensor()(sample_mask)
+        sample_mask = torch.gt(torch.sigmoid(sample_mask), 0.5)
         return {"image": sample_image, "mask": sample_mask}
 
 
