@@ -9,7 +9,7 @@ from knockknock import discord_sender
 import torch
 from dotenv import load_dotenv
 from pytorch_lightning import Trainer
-from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor
+from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor, ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.plugins import DDPPlugin
 
@@ -84,6 +84,14 @@ def main():
         os.mkdir(log_folder)
     logger = TensorBoardLogger(log_folder, name=run_name)
 
+    checkpoint_callback = ModelCheckpoint(
+        monitor='val_loss',
+        dirpath='./checkpoints',
+        filename='unet-{epoch:02d}-{val_loss:.2f}',
+        save_top_k=3,
+        mode='min',
+    )
+
     try:
         trainer = Trainer.from_argparse_args(
             args,
@@ -95,7 +103,7 @@ def main():
             if float(os.getenv("LRN_RATE")) == 0.0
             else False,
             logger=logger,
-            callbacks=[early_stop_callback, lr_monitor],
+            callbacks=[early_stop_callback, lr_monitor, checkpoint_callback],
             accumulate_grad_batches=1.0
             if not os.getenv("ACC_GRAD")
             else int(os.getenv("ACC_GRAD")),
